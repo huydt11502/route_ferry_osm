@@ -148,7 +148,17 @@ class SocialSearchProvider:
                 link = href
             if link.startswith("http") and any(domain in link for domain in ("facebook.com/", "instagram.com/")) and "/search" not in link:
                 results.append({"url": html.unescape(link.split("&amp;")[0]), "snippet": re.sub("<[^>]+>", " ", snippet)[:300]})
-        return results[:5]
+        # Google sometimes renders result URLs as escaped text instead of an
+        # anchor. Keep the public direct links so FB/IG columns do not become
+        # empty merely because the result-page markup changed.
+        direct_urls = re.findall(
+            r'https?://(?:www\.)?(?:facebook\.com|instagram\.com)/[^"<>&\\\s]+', body, re.I
+        )
+        for link in direct_urls:
+            link = html.unescape(link).rstrip('\\\\.,);')
+            if "/search" not in link:
+                results.append({"url": link, "snippet": ""})
+        return list({item["url"].split("?")[0]: item for item in results}.values())[:5]
 
     def collect(self, route: Route) -> Evidence:
         if not route.query:

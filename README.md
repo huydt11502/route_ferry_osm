@@ -24,6 +24,12 @@ Run the test suite:
 python -m pytest -q
 ```
 
+Run the standalone public-news/fare sample for one route:
+
+```bash
+python news_fare.py --name "Phà Cát Lái" --days 365 --out news_fare_cat_lai.json
+```
+
 The default pilot collects public Google News RSS and public Google search result links for Facebook/Instagram. Use `--offline` for deterministic local tests. The fixtures under `tests/fixtures/` document the expected evidence shapes for valid, outdated, conflicting, and unknown routes.
 
 To include the Google Maps adapter after installing Playwright browsers:
