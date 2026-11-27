@@ -1,0 +1,8 @@
+python-dateutil>=2.9
+dateparser>=1.2
+tenacity>=9.0
+PyYAML>=6.0
+requests>=2.32
+playwright>=1.50
+openpyxl>=3.1
+pytest>=8.0

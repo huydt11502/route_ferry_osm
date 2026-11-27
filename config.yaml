@@ -1,0 +1,42 @@
+review_windows:
+  primary_days: 90
+  fallback_days: 365
+news_keywords:
+  - giá vé
+  - tăng giá
+  - ngừng hoạt động
+  - dừng hoạt động
+  - có cầu
+  - cầu thay phà
+  - hoạt động trở lại
+  - sửa chữa
+request:
+  timeout_seconds: 20
+  min_delay_seconds: 3
+  max_delay_seconds: 8
+  retries: 3
+google_maps:
+  provider: playwright
+  api_keys:
+    google_places: GOOGLE_MAPS_API_KEY
+    serpapi: SERPAPI_KEY
+    outscraper: OUTSCRAPER_API_KEY
+  selectors: {}
+verdict:
+  closure_phrases:
+    - ngừng hoạt động
+    - đã ngừng
+    - dừng hoạt động
+    - không còn hoạt động
+    - đã có cầu
+    - cầu thay phà
+    - không còn phà
+    - đóng bến
+    - xóa bỏ bến
+  operation_phrases:
+    - đi phà
+    - qua phà
+    - phà chạy
+    - chờ phà
+    - xếp hàng
+    - vừa đi
