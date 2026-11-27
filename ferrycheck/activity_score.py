@@ -22,7 +22,7 @@ def score_activity(
     """Return a reproducible activity score from collected evidence.
 
     Google open/operating status gives +2, recent reviews +1, recent
-    operational mentions from news/social +2, and each closure signal -3.
+    operational mentions from news/social +1, and each closure signal -3.
     Scores 3-5 mean active, 1-2 mean insufficient evidence, and <=0 means
     there are signs that the ferry has stopped operating.
     """
@@ -37,8 +37,8 @@ def score_activity(
         score += 1
         reasons.append(f"{recent_reviews} review gần đây (+1)")
     if recent_operational_mentions > 0:
-        score += 2
-        reasons.append(f"{recent_operational_mentions} nguồn gần đây ghi nhận vận hành (+2)")
+        score += 1
+        reasons.append(f"{recent_operational_mentions} nguồn gần đây ghi nhận vận hành (+1)")
     if closure_signals:
         penalty = 3 * closure_signals
         score -= penalty
