@@ -14,7 +14,7 @@ from .links import build_links
 from .models import Evidence, Route
 from .verdict import Verdict
 
-SHEET_COLUMNS = ["osm_id", "ten", "khu_vuc", "ket_luan", "ly_do", "google", "binh_luan", "link_BL", "bao_chi", "link_bao", "facebook", "instagram", "gia_ve", "nguon_gia", "ngay_gia", "ghi_chu"]
+SHEET_COLUMNS = ["osm_id", "ten", "khu_vuc", "ket_luan", "ly_do", "google", "binh_luan", "hinh_anh", "link_BL", "bao_chi", "link_bao", "facebook", "instagram", "gia_ve", "nguon_gia", "ngay_gia", "ghi_chu"]
 _CONFIDENCE = {"high": "Cao", "medium": "Trung bình", "low": "Thấp"}
 _LABEL = {"valid": "Còn hoạt động", "outdated": "Đã ngừng", "unknown": "Chưa rõ"}
 _VEHICLE = {"motorcycle": "Xe máy", "pedestrian": "Người đi bộ", "car": "Ô tô", "truck": "Xe tải", "bicycle": "Xe đạp"}
@@ -90,13 +90,14 @@ def make_result(route: Route, evidence: Evidence, verdict: Verdict) -> tuple[dic
         notes.append("giá từ nguồn cũ, kiểm tra lại")
     if not route.xa_huyen_tinh:
         notes.append("điền xã/huyện/tỉnh rồi tìm lại")
+    image_text = "\n".join(item.get("url", "") for item in evidence.raw.get("review_images", []) if item.get("url")) or "–"
     sheet = {"osm_id": route.osm_id, "ten": route.name or "(không tên)", "khu_vuc": route.xa_huyen_tinh or "–", "ket_luan": conclusion,
-             "ly_do": verdict.reason[:100], "google": _google_text(evidence), "binh_luan": _review_text(evidence), "link_BL": "Xem BL" if evidence.place_url else "Tìm BL",
+             "ly_do": verdict.reason[:100], "google": _google_text(evidence), "binh_luan": _review_text(evidence), "hinh_anh": image_text, "link_BL": "Xem BL" if evidence.place_url else "Tìm BL",
              "bao_chi": news_text, "link_bao": "Xem báo" if news_url else "Tìm báo", "facebook": "FB" if evidence.facebook_links else "Tìm FB",
              "instagram": "IG" if evidence.instagram_links else "Tìm IG", "gia_ve": fare_text, "nguon_gia": "Nguồn" if fare_url else "–",
              "ngay_gia": fare_date, "ghi_chu": "; ".join(notes) or "–"}
     hyperlinks = {"osm_id": links["link_osm"], "link_BL": evidence.place_url or links["link_google_maps"], "link_bao": news_url or links["link_google_news"],
-                  "nguon_gia": fare_url, "facebook": evidence.facebook_links[0].get("url", "") if evidence.facebook_links else links["link_facebook"],
+                  "nguon_gia": fare_url, "hinh_anh": next((item.get("url", "") for item in evidence.raw.get("review_images", []) if item.get("url")), ""), "facebook": evidence.facebook_links[0].get("url", "") if evidence.facebook_links else links["link_facebook"],
                   "instagram": evidence.instagram_links[0].get("url", "") if evidence.instagram_links else links["link_instagram"]}
     raw = {"osm_id": route.osm_id, "verdict": {"label": verdict.verdict, "confidence": verdict.confidence, "reason": verdict.reason, "manual": manual},
            "google": {"status": evidence.google_status, "rating": evidence.rating, "count": evidence.review_count, "window": evidence.review_window, "in_window": len(evidence.reviews), "place_url": evidence.place_url, "comments": [asdict(review) for review in evidence.reviews]},
@@ -111,7 +112,7 @@ def write_xlsx(path: str | Path, rows: list[dict[str, str]]) -> None:
     sheet.append(SHEET_COLUMNS)
     for row in rows:
         sheet.append([row.get(column, "") for column in SHEET_COLUMNS])
-    for column in range(1, 17):
+    for column in range(1, len(SHEET_COLUMNS) + 1):
         sheet.column_dimensions[get_column_letter(column)].width = 42 if column in (5, 7, 16) else 22
     for cell in sheet[1]:
         cell.font = Font(bold=True, color="FFFFFF"); cell.fill = PatternFill("solid", fgColor="1F4E78")
